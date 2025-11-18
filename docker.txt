@@ -119,6 +119,29 @@ docker image load vs docker image import
 load unpack tar saved image perevisly 
 import create new docker image
 
+
+### Best Practise Create Dockerfile:
+1) each line means one layer
+2) everything change more place at endof dockerfile to use more cache
+3) use multi-stage to reduce image size
+4) Use as Non-root
+Example Of Best Dockerfile:
+
+
+
+FROM vnk-nexus.abramad.com/python:3.12-slim-bullseye
+WORKDIR /app
+RUN useradd sysops --shell /bin/bash --home /app
+COPY --chown=sysops:sysops requirments.txt /app/requirments.txt
+RUN pip install -r /app/requirments.txt && chown -R sysops:sysops /app/
+COPY --chown=sysops:sysops pannel.py /app
+USER sysops
+CMD ["python", "/app/pannel.py"]
+
+if developer just change code we use cache requirment.txt and won't be trigger to install all dependency again.
+
+
 /sys/fs/cgroup # limit allocation resource
 
 docker container run --cidfile <file_name> # save id container into file use for CI/CD
+
